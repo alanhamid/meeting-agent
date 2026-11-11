@@ -26,6 +26,10 @@ I will follow up..."* and a follow-up is logged against the participants who blo
   (other people's words, possibly confidential); without one, keyword-based notes are produced locally.
 - The Azure call has been tested only against a mock server, never a live endpoint.
 
+## Retrieval
+BM25 over tagged chunks (table rows are separate chunks), light stemming, title and phrase boosts. Measured with
+`scripts/eval_retrieval.py` (hit@1 0.74, hit@3 0.91 on 43 self-written questions; see docs/test-log.md).
+
 ## Status (step 1)
 Built: knowledge loader with section-level tags, BM25 retrieval, clearance gate, pre-meeting dashboard,
 ask by typing or browser push-to-talk, policy warnings, release-once, follow-up log, append-only audit events.

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from datetime import date
 
+from meeting_agent.classification import Level
 from meeting_agent.gate import Verdict, decide, uncleared_for
 from meeting_agent.gateway import ExtractiveGateway, Gateway, GatewayError, Passage, build_system
 from meeting_agent.kb.search import Hit, Index
@@ -66,8 +67,10 @@ def ask(
             followup_id=fid,
         )
 
-    hits = index.search(question, k=TOP_K)
-    verdicts = [(h, decide(h.chunk, meeting, today)) for h in hits]
+    # Internal material is searched separately so it can never crowd out answerable passages.
+    hits = index.search(question, k=TOP_K, levels={Level.PUBLIC, Level.NDA})
+    internal_hits = index.search(question, k=3, levels={Level.INTERNAL})
+    verdicts = [(h, decide(h.chunk, meeting, today)) for h in hits + internal_hits]
     allowed = [h for h, v in verdicts if v is Verdict.ALLOW]
     withheld = [h for h, v in verdicts if v is Verdict.WITHHOLD_NDA]
     internal = [h for h, v in verdicts if v is Verdict.INTERNAL]

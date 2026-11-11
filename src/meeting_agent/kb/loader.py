@@ -17,6 +17,12 @@ from meeting_agent.classification import Confidence, Level, Topic
 TEXT_SUFFIXES = {".md", ".yaml", ".yml", ".txt"}
 MAX_CHUNK_CHARS = 1400
 _HEADING = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")
+_SEP = re.compile(r"^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$")
+
+
+def _is_row(line: str) -> bool:
+    s = line.strip()
+    return s.startswith("|") and not _SEP.match(s)
 
 
 @dataclass(frozen=True)
@@ -121,6 +127,15 @@ def _chunk_markdown(rel: str, text: str, entry: _Entry | None, default: Level) -
 
     chunks: list[Chunk] = []
     for n, (title, level, lines) in enumerate(sections):
+        rows = [ln for ln in lines if _is_row(ln)]
+        if len(rows) >= 3:  # table: one chunk per row so each Q&A answers on its own
+            head = "\n".join(ln for ln in lines if not _is_row(ln) and ln.strip() and not _SEP.match(ln))
+            for k, row in enumerate(rows):
+                label = row.strip("| ").split("|")[0].strip(" *")[:60]
+                chunks.append(Chunk(f"{rel}#{n}.{k}", rel, f"{title} > {label}", row.strip(), level, topic, conf))
+            if head.strip():
+                chunks.append(Chunk(f"{rel}#{n}.h", rel, title, head, level, topic, conf))
+            continue
         for k, piece in enumerate(_split_long("\n".join(lines).strip())):
             chunks.append(Chunk(f"{rel}#{n}.{k}", rel, title, piece, level, topic, conf))
     return chunks

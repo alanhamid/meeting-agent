@@ -1,0 +1,46 @@
+# Retrieval eval: a question and the document (and optionally a heading fragment) that should rank in the top results.
+# Search is run over the WHOLE pack (all levels), so this measures ranking only, not the gate.
+cases:
+  - {q: "How does duplicate invoice detection work?", doc: "docs/duplicates.md"}
+  - {q: "What counts as a duplicate payment?", doc: "docs/duplicates.md"}
+  - {q: "How does the kill switch work?", doc: "docs/rollout.md"}
+  - {q: "Who can widen the payment limits?", doc: "docs/rollout.md"}
+  - {q: "What are the assisted live gates?", doc: "docs/rollout.md"}
+  - {q: "How is the audit log protected from tampering?", doc: "docs/audit.md"}
+  - {q: "What are the audit anchors?", doc: "docs/audit.md"}
+  - {q: "Do you screen beneficiaries against sanctions lists?", doc: "docs/screening.md"}
+  - {q: "What is not built in screening?", doc: "docs/screening.md"}
+  - {q: "How do users sign in and what roles exist?", doc: "docs/auth.md"}
+  - {q: "How would a bank configure Entra ID for its users?", doc: "docs/auth.md"}
+  - {q: "What synthetic data did you test with?", doc: "docs/synthetic-data.md"}
+  - {q: "How are traces masked and how is a model approved?", doc: "docs/observability-and-evals.md"}
+  - {q: "What is the eval gate for models?", doc: "docs/observability-and-evals.md"}
+  - {q: "Is it a retail product that helps consumers with cheaper faster payments?", doc: "docs/pitch/pitch-azure.md", sec: "Likely questions"}
+  - {q: "What is your moat and do you do stablecoins?", doc: "docs/pitch/pitch-azure.md", sec: "Likely questions"}
+  - {q: "Which stablecoins do you model?", doc: "docs/pitch/pitch-azure.md", sec: "Likely questions"}
+  - {q: "What if the model hallucinates?", doc: "docs/pitch/pitch-azure.md", sec: "Likely questions"}
+  - {q: "Is the login real?", doc: "docs/pitch/pitch-azure.md", sec: "Likely questions"}
+  - {q: "Which languages and countries do you support?", doc: "docs/pitch/pitch-azure.md", sec: "Likely questions"}
+  - {q: "Who is the customer?", doc: "docs/pitch/pitch-azure.md", sec: "Likely questions"}
+  - {q: "What do you want from Microsoft?", doc: "docs/pitch/pitch-azure.md", sec: "four asks"}
+  - {q: "What does the AI actually decide?", doc: "docs/pitch/pitch-azure.md", sec: "Likely questions"}
+  - {q: "How do I deploy the proof of concept to Azure?", doc: "docs/azure-poc-runbook.md"}
+  - {q: "How much does the Azure proof of concept cost and how do I shut it down?", doc: "docs/azure-poc-runbook.md"}
+  - {q: "What happened on the first real Azure run?", doc: "docs/azure-poc-runbook.md"}
+  - {q: "What are the open legal questions about RPAA and FINTRAC?", doc: "docs/research-status.md"}
+  - {q: "What happened with Arc mainnet, Circle Onramp and BVNK?", doc: "docs/research-status.md"}
+  - {q: "What evidence supports the open banking premise?", doc: "docs/premise-evidence.md"}
+  - {q: "What are the trust boundaries of the system?", doc: "docs/pack/01-system-description.md"}
+  - {q: "What data flows when a new payee comes from an uploaded invoice?", doc: "docs/pack/02-data-inventory-and-flows.md"}
+  - {q: "Which third parties and models do you use?", doc: "docs/pack/04-third-parties-and-models.md"}
+  - {q: "What controls map to which regulatory drivers?", doc: "docs/pack/03-controls-matrix.md"}
+  - {q: "What is the payment lifecycle?", doc: "architecture/ARCHITECTURE.md", sec: "Payment lifecycle"}
+  - {q: "How does settlement and reconciliation work?", doc: "architecture/ARCHITECTURE.md", sec: "Settlement"}
+  - {q: "What is the tech stack?", doc: "architecture/ARCHITECTURE.md", sec: "Tech stack"}
+  - {q: "How is the model gateway and evaluation designed?", doc: "architecture/ARCHITECTURE.md", sec: "Model gateway"}
+  - {q: "What is the planned Azure deployment topology?", doc: "architecture/ARCHITECTURE.md", sec: "Azure deployment"}
+  - {q: "What are the open decisions and risks?", doc: "architecture/ARCHITECTURE.md", sec: "Open decisions"}
+  - {q: "What does the chat do?", doc: "README.md"}
+  - {q: "What payment rails exist in Canada like Lynx?", doc: "data/rails/catalogue.yaml"}
+  - {q: "What are Canadian jurisdiction rules for cross-border payments?", doc: "data/jurisdictions/CA.yaml"}
+  - {q: "What if something goes wrong during the demo?", doc: "docs/pitch/demo-script.md", sec: "goes wrong"}
