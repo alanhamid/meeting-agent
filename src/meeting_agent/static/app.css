@@ -19,3 +19,6 @@ label{display:block;margin:8px 0;font-size:14px;color:var(--mut)}label input,lab
 .person{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
 .tag{font-size:12px;padding:1px 8px;border-radius:999px}.tag.signed{background:var(--okb);color:var(--ok)}.tag.not_signed,.tag.pending{background:var(--badb);color:var(--bad)}
 ul{padding-left:18px}
+
+textarea{width:100%;font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px;margin:8px 0}
+[hidden]{display:none!important}

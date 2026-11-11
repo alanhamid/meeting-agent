@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hmac
+import json
 import os
 from datetime import date
 from pathlib import Path
@@ -12,7 +13,7 @@ from pydantic import BaseModel, ValidationError
 from meeting_agent.ask import ask as run_ask
 from meeting_agent.classification import Level
 from meeting_agent.gate import clearance_summary
-from meeting_agent.gateway import ExtractiveGateway, Gateway
+from meeting_agent.gateway import Gateway, gateway_from_env
 from meeting_agent.kb.loader import load_kb
 from meeting_agent.kb.search import Index
 from meeting_agent.models import (
@@ -26,8 +27,10 @@ from meeting_agent.models import (
     ParticipantIn,
     Release,
 )
+from meeting_agent.notes import make_notes
 from meeting_agent.policy import load_policy
 from meeting_agent.store import Store
+from meeting_agent.transcripts import MAX_CHARS, Utterance, parse_transcript
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -48,6 +51,10 @@ class NdaUpdate(BaseModel):
     nda_date: date | None = None
     nda_reference: str | None = None
     nda_expires: date | None = None
+
+
+class TranscriptIn(BaseModel):
+    text: str
 
 
 class ReleaseIn(BaseModel):
@@ -74,7 +81,7 @@ def create_app(
     chunk_by_id = {c.chunk_id: c for c in chunks}
     policy = load_policy(policy_path or ROOT / "config" / "policy.yaml")
     store = Store(db_path or os.getenv("MEETING_AGENT_DB", ":memory:"))
-    gw = gateway or ExtractiveGateway()
+    gw = gateway or gateway_from_env(dict(os.environ))
 
     def auth(authorization: str | None = Header(default=None)) -> None:
         if not token:
@@ -228,6 +235,40 @@ def create_app(
     def events(mid: str) -> list[dict]:
         get(mid)
         return store.events(mid)
+
+    @app.post("/api/meetings/{mid}/transcript")
+    def add_transcript(mid: str, body: TranscriptIn) -> dict:
+        m = get(mid)
+        if m.status is MeetingStatus.DRAFT:
+            raise HTTPException(409, "start the meeting first")
+        if len(body.text) > MAX_CHARS:
+            raise HTTPException(413, f"transcript too large (max {MAX_CHARS} characters)")
+        utts = parse_transcript(body.text)
+        if not utts:
+            raise HTTPException(422, "no speech found in transcript")
+        tid = store.add_transcript(mid, [u.__dict__ for u in utts])
+        store.add_event(mid, "transcript_added", {"id": tid, "turns": len(utts)})
+        return {"id": tid, "turns": len(utts), "speakers": list(dict.fromkeys(u.speaker for u in utts))}
+
+    @app.post("/api/meetings/{mid}/notes")
+    def generate_notes(mid: str) -> dict:
+        m = get(mid)
+        t = store.latest_transcript(mid)
+        if t is None:
+            raise HTTPException(409, "add a transcript first")
+        tid, raw = t
+        notes = make_notes(m, [Utterance(**u) for u in raw], gw, store.followups(mid))
+        store.add_notes(mid, tid, notes.model_dump_json())
+        store.add_event(mid, "notes_generated", {"transcript_id": tid, "method": notes.method})
+        return notes.model_dump(mode="json")
+
+    @app.get("/api/meetings/{mid}/notes")
+    def get_notes(mid: str) -> dict:
+        get(mid)
+        raw = store.latest_notes(mid)
+        if raw is None:
+            raise HTTPException(404, "no notes yet")
+        return json.loads(raw)
 
     static = Path(__file__).parent / "static"
     app.mount("/", StaticFiles(directory=static, html=True), name="ui")

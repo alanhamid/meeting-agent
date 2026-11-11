@@ -14,7 +14,7 @@ from __future__ import annotations
 from datetime import date
 
 from meeting_agent.gate import Verdict, decide, uncleared_for
-from meeting_agent.gateway import Gateway, Passage, build_system
+from meeting_agent.gateway import ExtractiveGateway, Gateway, GatewayError, Passage, build_system
 from meeting_agent.kb.search import Hit, Index
 from meeting_agent.models import (
     AskResult,
@@ -117,7 +117,13 @@ def ask(
 
     used = allowed[:MAX_PASSAGES]
     passages = [Passage(h.chunk.chunk_id, h.chunk.title, h.chunk.text) for h in used]
-    draft = gateway.answer(build_system(meeting), question, passages).strip()
+    degraded = False
+    try:
+        draft = gateway.answer(build_system(meeting), question, passages).strip()
+    except GatewayError:
+        # Model unavailable mid-meeting: fall back to quoting the cleared passage, and say so.
+        degraded = True
+        draft = ExtractiveGateway().answer("", question, passages).strip()
     warnings += [w for w in policy.check(draft, meeting.stakeholder) if w not in warnings]
 
     # A release is single use: consume it once the passage has actually been used.
@@ -130,7 +136,7 @@ def ask(
     store.add_event(
         meeting.id,
         "ask",
-        {"question": question, "outcome": "answered", "sources": sorted(used_ids)},
+        {"question": question, "outcome": "answered", "sources": sorted(used_ids), "degraded": degraded},
     )
     return AskResult(
         outcome=Outcome.ANSWERED,
@@ -139,4 +145,5 @@ def ask(
         withheld=[_source(h) for h in withheld],
         private_notes=notes,
         warnings=warnings,
+        degraded=degraded,
     )

@@ -45,10 +45,17 @@
       <button id="endbtn">End meeting</button>
     </section>
     <section>
-      <div class="row"><input id="q" placeholder="Type a question..." autocomplete="off"><button id="askbtn" class="primary">Ask</button>
+      <div class="row" id="askrow"><input id="q" placeholder="Type a question..." autocomplete="off"><button id="askbtn" class="primary">Ask</button>
       <button id="mic" title="Hold to speak (mute the call first)">Hold to talk</button></div>
       <p class="muted" id="micnote"></p>
       <div id="answer"></div>
+      <h3>After the meeting: notes</h3>
+      <p class="muted">Paste or upload the Zoom / Teams transcript (.txt, .vtt, .srt). Check that everyone in it consented to notes.</p>
+      <input id="tfile" type="file" accept=".txt,.vtt,.srt">
+      <textarea id="ttext" rows="5" placeholder="...or paste the transcript here"></textarea>
+      <div class="row"><button id="notesbtn" class="primary">Generate notes</button></div>
+      <p id="nerr" class="err" role="alert"></p>
+      <div id="notes"></div>
     </section>
   </div>
 </main>

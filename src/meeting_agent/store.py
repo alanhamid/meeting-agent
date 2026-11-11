@@ -21,6 +21,13 @@ CREATE TABLE IF NOT EXISTS followups (
   id TEXT PRIMARY KEY, meeting_id TEXT NOT NULL, created TEXT NOT NULL,
   reason TEXT NOT NULL, question TEXT NOT NULL, who TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'open');
+CREATE TABLE IF NOT EXISTS transcripts (
+  id TEXT PRIMARY KEY, meeting_id TEXT NOT NULL, created TEXT NOT NULL, body TEXT NOT NULL);
+CREATE TRIGGER IF NOT EXISTS transcripts_no_update BEFORE UPDATE ON transcripts
+  BEGIN SELECT RAISE(ABORT, 'transcripts are immutable'); END;
+CREATE TABLE IF NOT EXISTS notes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, meeting_id TEXT NOT NULL, transcript_id TEXT NOT NULL,
+  created TEXT NOT NULL, body TEXT NOT NULL);
 """
 
 
@@ -92,3 +99,34 @@ class Store:
                 (followup_id, meeting_id),
             )
         return cur.rowcount == 1
+
+    def add_transcript(self, meeting_id: str, utterances: list[dict]) -> str:
+        tid = new_id()
+        with self._lock, self._db:
+            self._db.execute(
+                "INSERT INTO transcripts(id, meeting_id, created, body) VALUES(?,?,?,?)",
+                (tid, meeting_id, _now(), json.dumps(utterances)),
+            )
+        return tid
+
+    def latest_transcript(self, meeting_id: str) -> tuple[str, list[dict]] | None:
+        with self._lock:
+            r = self._db.execute(
+                "SELECT id, body FROM transcripts WHERE meeting_id=? ORDER BY created DESC, rowid DESC LIMIT 1",
+                (meeting_id,),
+            ).fetchone()
+        return (r["id"], json.loads(r["body"])) if r else None
+
+    def add_notes(self, meeting_id: str, transcript_id: str, body: str) -> None:
+        with self._lock, self._db:
+            self._db.execute(
+                "INSERT INTO notes(meeting_id, transcript_id, created, body) VALUES(?,?,?,?)",
+                (meeting_id, transcript_id, _now(), body),
+            )
+
+    def latest_notes(self, meeting_id: str) -> str | None:
+        with self._lock:
+            r = self._db.execute(
+                "SELECT body FROM notes WHERE meeting_id=? ORDER BY id DESC LIMIT 1", (meeting_id,)
+            ).fetchone()
+        return r["body"] if r else None

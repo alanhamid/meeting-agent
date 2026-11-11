@@ -74,7 +74,7 @@ async function loadPast() {
     const ms = await api("/meetings");
     const box = $("#past"); box.replaceChildren();
     for (const m of ms) box.append(el("div", { class: "person" }, `${m.meeting_date} - ${m.title} (${m.status})`,
-      m.status === "active" ? el("button", { onclick: () => openMeeting(m.id) }, "Resume") : ""));
+      el("button", { onclick: () => openMeeting(m.id) }, m.status === "active" ? "Resume" : "Notes")));
   } catch (_) {}
 }
 loadPast();
@@ -85,6 +85,8 @@ async function openMeeting(id) {
 }
 async function refresh() {
   const m = await api(`/meetings/${MID}`);
+  const live = m.status === "active";
+  $("#askrow").hidden = !live; $("#micnote").hidden = !live; $("#endbtn").hidden = !live; $("#joinbtn").parentElement.hidden = !live;
   $("#mtitle").textContent = `${m.title} - ${m.stakeholder.replaceAll("_", " ")}`;
   const b = $("#banner"); b.replaceChildren();
   for (const t of ["technical", "commercial"]) {
@@ -169,4 +171,28 @@ else {
     rec.start(); mic.textContent = "Listening...";
   });
   for (const ev of ["pointerup", "pointerleave"]) mic.addEventListener(ev, () => { stop(); mic.textContent = "Hold to talk"; });
+}
+
+/* ---------- notes ---------- */
+$("#tfile").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) $("#ttext").value = await f.text(); });
+$("#notesbtn").addEventListener("click", async () => {
+  $("#nerr").textContent = "";
+  try {
+    if ($("#ttext").value.trim()) await api(`/meetings/${MID}/transcript`, "POST", { text: $("#ttext").value });
+    renderNotes(await api(`/meetings/${MID}/notes`, "POST"));
+  } catch (e) { $("#nerr").textContent = e.message; }
+});
+function list(title, items) {
+  const box = el("div", {}, el("h4", {}, title));
+  if (!items.length) { box.append(el("p", { class: "muted" }, "None found.")); return box; }
+  const ul = el("ul"); for (const i of items) ul.append(el("li", {}, i)); box.append(ul); return box;
+}
+function renderNotes(n) {
+  const box = $("#notes"); box.replaceChildren();
+  const card = el("div", { class: "card" }, el("p", {}, n.summary), el("p", { class: "muted" }, `Method: ${n.method}. ${n.utterance_count} turns; speakers: ${n.speakers.join(", ")}`));
+  if (n.unlisted_speakers.length) card.append(el("div", { class: "card wrn" }, "Spoke but not on your participant list (may include you) - check their NDA status: " + n.unlisted_speakers.join(", ")));
+  card.append(list("Decisions", n.decisions), list("Action items", n.action_items.map((a) => `${a.owner}: ${a.task}`)),
+    list("Questions raised", n.questions.map((q) => `${q.asked_by}: ${q.question}`)), list("Risks / objections", n.risks_or_objections),
+    list("Open follow-ups", n.followups.filter((f) => f.status === "open").map((f) => `[${f.reason}] ${f.question}`)));
+  box.append(card);
 }

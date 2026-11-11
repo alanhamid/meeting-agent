@@ -154,3 +154,4 @@ class AskResult(BaseModel):
     warnings: list[Warning_] = []
     followup_id: str | None = None
     uncleared: list[str] = []         # names of participants blocking NDA-level content
+    degraded: bool = False            # model was unavailable; answer is a plain quote
