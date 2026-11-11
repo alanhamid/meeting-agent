@@ -22,8 +22,9 @@ I will follow up..."* and a follow-up is logged against the participants who blo
   if the model call fails the answer degrades to a plain quote and is flagged.
 - After a meeting, paste or upload a Zoom/Teams transcript (.txt, .vtt, .srt) and generate notes: summary, decisions,
   action items, questions, objections, open follow-ups, a snapshot of each participant's NDA status, and a list of
-  speakers who were not on your participant list. With a model configured the TRANSCRIPT IS SENT to that model
-  (other people's words, possibly confidential); without one, keyword-based notes are produced locally.
+  speakers who were not on your participant list. Notes are keyword-based and stay local by default. Only with
+  `MEETING_AGENT_NOTES_MODEL=on` is the TRANSCRIPT SENT to the model (other people's words, possibly confidential);
+  leave it off until the model is in a region you are allowed to use.
 - The Azure call has been tested only against a mock server, never a live endpoint.
 
 ## Retrieval

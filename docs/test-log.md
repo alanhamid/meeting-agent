@@ -40,3 +40,11 @@ several "misses" are label ambiguity (e.g. controls-to-regulators exists in two 
 ceiling; embeddings or a reranker would be the next step. Conservative rule unchanged: when the best match is NDA-level
 and the room is not cleared, the script is used even if a weaker public passage exists (e.g. the audit-log question).
 **Not tested:** embeddings, rerankers, questions phrased by other people, spoken (mis-transcribed) questions.
+
+## 2026-11-11 (round 4: notes stay local)
+**What:** transcripts go to a model only with `MEETING_AGENT_NOTES_MODEL=on` (default off), because the available Azure
+OpenAI resource is in a US region.
+**How:** `pytest` (76 tests); new test proves that with an answer model configured and the flag unset, no request is made
+for notes.
+**Result:** 76 pass, ruff clean.
+**Not tested:** a live Azure OpenAI call (endpoint and key not yet provided).

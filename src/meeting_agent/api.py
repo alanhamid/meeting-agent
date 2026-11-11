@@ -69,6 +69,7 @@ def create_app(
     gateway: Gateway | None = None,
     token: str | None = None,
     env: str | None = None,
+    notes_model: bool | None = None,
 ) -> FastAPI:
     env = env or os.getenv("MEETING_AGENT_ENV", "dev")
     token = token if token is not None else os.getenv("MEETING_AGENT_TOKEN")
@@ -82,6 +83,10 @@ def create_app(
     policy = load_policy(policy_path or ROOT / "config" / "policy.yaml")
     store = Store(db_path or os.getenv("MEETING_AGENT_DB", ":memory:"))
     gw = gateway or gateway_from_env(dict(os.environ))
+    # Transcripts hold other people's words. They go to a model only when explicitly enabled.
+    if notes_model is None:
+        notes_model = os.getenv("MEETING_AGENT_NOTES_MODEL", "off") == "on"
+    notes_gw = gw if notes_model else None
 
     def auth(authorization: str | None = Header(default=None)) -> None:
         if not token:
@@ -103,7 +108,13 @@ def create_app(
 
     @app.get("/api/health")
     def health() -> dict:
-        return {"ok": True, "chunks": len(chunks), "env": env}
+        return {
+            "ok": True,
+            "chunks": len(chunks),
+            "env": env,
+            "answer_model": type(gw).__name__,
+            "notes_model": "on" if notes_model else "off (local keyword notes)",
+        }
 
     @app.post("/api/meetings")
     def create_meeting(body: MeetingIn) -> dict:
@@ -257,7 +268,7 @@ def create_app(
         if t is None:
             raise HTTPException(409, "add a transcript first")
         tid, raw = t
-        notes = make_notes(m, [Utterance(**u) for u in raw], gw, store.followups(mid))
+        notes = make_notes(m, [Utterance(**u) for u in raw], notes_gw, store.followups(mid))
         store.add_notes(mid, tid, notes.model_dump_json())
         store.add_event(mid, "notes_generated", {"transcript_id": tid, "method": notes.method})
         return notes.model_dump(mode="json")

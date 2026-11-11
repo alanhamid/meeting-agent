@@ -56,8 +56,10 @@ def test_parse_empty():
     assert parse_transcript("   \n\n") == []
 
 
-def client(gateway=None):
-    return TestClient(create_app(kb_root=FIXTURE_KB, gateway=gateway, token=None, env="dev"))
+def client(gateway=None, notes_model=True):
+    return TestClient(
+        create_app(kb_root=FIXTURE_KB, gateway=gateway, token=None, env="dev", notes_model=notes_model)
+    )
 
 
 def started(c):
@@ -152,3 +154,15 @@ def test_transcripts_are_immutable():
     s.add_transcript("m", [{"speaker": "a", "text": "b", "start": None}])
     with pytest.raises(sqlite3.DatabaseError):
         s._db.execute("UPDATE transcripts SET body='x'")
+
+
+def test_transcript_never_sent_to_model_by_default(monkeypatch):
+    monkeypatch.delenv("MEETING_AGENT_NOTES_MODEL", raising=False)
+    g, h = chat_gateway("{}")
+    h.last = None
+    c = TestClient(create_app(kb_root=FIXTURE_KB, gateway=g, token=None, env="dev"))
+    mid = started(c)
+    c.post(f"/api/meetings/{mid}/transcript", json={"text": TEAMS_VTT})
+    assert c.post(f"/api/meetings/{mid}/notes").json()["method"] == "heuristic"
+    assert h.last is None  # the answer model exists, but the transcript stayed local
+    assert c.get("/api/health").json()["notes_model"].startswith("off")
