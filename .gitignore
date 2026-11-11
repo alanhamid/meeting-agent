@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+# Knowledge pack content is confidential: it is synced locally, never committed.
+/kb/
+*.db
+.env

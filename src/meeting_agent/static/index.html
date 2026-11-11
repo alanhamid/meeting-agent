@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meeting Copilot</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header><h1>Meeting Copilot</h1><span class="muted">private - keep off screen share</span>
+<span class="spacer"></span><input id="token" type="password" placeholder="access token (if set)" autocomplete="off"></header>
+
+<main id="setup">
+  <h2>Before the meeting</h2>
+  <p class="muted">Nothing can be asked until every participant has an explicit NDA answer.</p>
+  <form id="mform">
+    <div class="grid">
+      <label>Title<input name="title" required></label>
+      <label>Date<input name="meeting_date" type="date" required></label>
+      <label>Platform<select name="platform"><option value="zoom">Zoom</option><option value="teams">Teams</option><option value="in_person">In person</option><option value="other">Other</option></select></label>
+      <label>Stakeholder<select name="stakeholder">
+        <option value="investor">Investor</option><option value="microsoft">Microsoft</option>
+        <option value="strategic_enterprise">Strategic enterprise (controlled pilot)</option>
+        <option value="credit_union_or_bank">Credit union / bank</option><option value="technical_ally">Technical ally</option><option value="other">Other</option></select></label>
+    </div>
+    <label>Goal of the meeting<input name="goal" required></label>
+    <label>Topics to avoid (comma separated)<input name="avoid"></label>
+    <h3>Participants</h3>
+    <div id="plist"></div>
+    <button type="button" id="addp">+ Add participant</button>
+    <p id="merr" class="err" role="alert"></p>
+    <button type="submit" class="primary">Start meeting</button>
+  </form>
+  <h3>Previous meetings</h3><div id="past"></div>
+</main>
+
+<main id="live" hidden>
+  <section id="banner"></section>
+  <div class="cols">
+    <section>
+      <h2 id="mtitle"></h2>
+      <div id="people"></div>
+      <div class="row"><input id="late" placeholder="Someone joined: name"><button id="joinbtn">Add (not signed)</button></div>
+      <h3>Follow-ups</h3><ul id="followups"></ul>
+      <button id="endbtn">End meeting</button>
+    </section>
+    <section>
+      <div class="row"><input id="q" placeholder="Type a question..." autocomplete="off"><button id="askbtn" class="primary">Ask</button>
+      <button id="mic" title="Hold to speak (mute the call first)">Hold to talk</button></div>
+      <p class="muted" id="micnote"></p>
+      <div id="answer"></div>
+    </section>
+  </div>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+entries:
+  - {path: "docs/overview.md", level: public, topic: general}
+  - path: "docs/pitch.md"
+    level: public
+    topic: commercial
+    sections:
+      - {heading: "Do not say", level: internal}
+  - {path: "docs/architecture.md", level: nda, topic: technical}
+  - {path: "docs/pricing-plan.md", level: nda, topic: commercial}
+  - {path: "docs/testlog.md", level: internal, topic: technical}

@@ -1,0 +1,38 @@
+# Classification of the AAPA material (approved by the presenter). Anything NOT listed here
+# is treated as INTERNAL by the loader. Source code is internal and is not indexed yet.
+# confidence stays "unreviewed" until the presenter rates a source verified/reported/unverified.
+entries:
+  # ---- public ----
+  - {path: "README.md", level: public, topic: general}
+  - path: "docs/pitch/pitch-azure.md"
+    level: public
+    topic: commercial
+    sections: [{heading: "Do not say", level: internal}]
+  - {path: "docs/pitch/demo-script.md", level: public, topic: general}
+  - {path: "docs/synthetic-data.md", level: public, topic: technical}
+  - {path: "docs/rollout.md", level: public, topic: technical}
+  - {path: "docs/duplicates.md", level: public, topic: technical}
+  - {path: "docs/screening.md", level: public, topic: technical}
+  - {path: "docs/audit.md", level: public, topic: technical}
+  - {path: "docs/observability-and-evals.md", level: public, topic: technical}
+  # ---- internal (listed before nda globs so they win) ----
+  - {path: "docs/test-log.md", level: internal, topic: technical}
+  - {path: "docs/airipay-port.md", level: internal, topic: technical}
+  - {path: "docs/hati-*-port.md", level: internal, topic: technical}
+  - {path: "CLAUDE.md", level: internal, topic: technical}
+  - {path: "docs/pack/05-test-evidence-and-gaps.md", level: internal, topic: technical}
+  - {path: "config/sandbox/*", level: internal, topic: technical}
+  # ---- nda ----
+  - {path: "architecture/*.md", level: nda, topic: technical}
+  - {path: "docs/pack/*.md", level: nda, topic: technical}
+  - {path: "docs/auth.md", level: nda, topic: technical}
+  - {path: "docs/azure-poc-runbook.md", level: nda, topic: technical}
+  - {path: "data/jurisdictions/*", level: nda, topic: technical}
+  - {path: "data/rails/*", level: nda, topic: technical}
+  - {path: "config/tenants/*", level: nda, topic: technical}
+  - {path: "config/models*.yaml", level: nda, topic: technical}
+  - path: "docs/premise-evidence.md"
+    level: nda
+    topic: commercial
+    sections: [{heading: "Do not say", level: internal}]
+  - {path: "docs/research-status.md", level: nda, topic: commercial}

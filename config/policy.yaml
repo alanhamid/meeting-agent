@@ -1,0 +1,50 @@
+# Policy is data. Scripts are spoken-safe fixed text; rules only WARN the presenter.
+# This file carries the "do not say" limits from the AAPA pitch material, so keep the repo private.
+scripts:
+  nda: >-
+    To answer that properly we need a signed NDA in place. Once it is signed and in place,
+    I will follow up with the information you asked for.
+  no_answer: >-
+    I do not have a confirmed answer on that, so I would rather not guess.
+    Let me check and come back to you.
+  avoid_topic: >-
+    I would like to come back to you on that one rather than answer it now.
+
+rules:
+  - id: production-ready
+    pattern: 'production[- ]ready|production readiness|go(es|ing)? live'
+    message: "Do not claim production readiness. AAPA is a POC on synthetic data; nothing is live."
+  - id: customers
+    pattern: '\bcustomers?\b|\brevenue\b|\bclients?\b|design partners?'
+    message: "No customer, institution or revenue exists. Say it is a hypothesis."
+  - id: live-prices
+    pattern: '\b(live|real)\s+(price|pricing|quote|rate)s?\b|\bpricing\b'
+    message: "No live or real prices. Mock quote values are sandbox numbers, not pricing."
+  - id: stablecoin
+    pattern: 'stablecoin|usdc|\bcadd\b|\barc\b'
+    message: "Stablecoin routes are simulated, modelled and blocked in AAPA. Not live, executable or cheaper."
+  - id: real-time-rail
+    pattern: 'real[- ]time rail|\brtr\b'
+    message: "Do not say RTR is executable or available. Status and message profile are unverified."
+  - id: open-banking-dates
+    pattern: 'open banking'
+    message: "Do not state open-banking dates as fact."
+  - id: regulatory
+    pattern: '\brpaa\b|fintrac|regulator|regulatory|complian'
+    message: "No regulatory conclusions. RPAA/FINTRAC applicability needs counsel."
+  - id: speed-cost
+    pattern: '\b(faster|cheaper|cost saving|savings|speed gain)\b'
+    message: "No faster or cheaper executable cross-border route exists yet; do not claim gains."
+  - id: moat
+    pattern: '\bmoat\b|competitive advantage|differentiat'
+    message: "Do not present a moat or competitive advantage as fact; the competitor review is not done."
+  - id: retail
+    pattern: '\bretail\b|\bconsumer'
+    message: "No retail or consumer benefit claims."
+  - id: model-improves
+    pattern: 'improv(e|es|ing) (payment )?decisions|learns? from'
+    message: "Do not say the model improves payment decisions. The LLM only explains; ranking is deterministic."
+  - id: foundry
+    stakeholders: [microsoft]
+    pattern: 'foundry'
+    message: "AAPA is not a Foundry Agent Service deployment. Ask Microsoft for review of fit instead."
